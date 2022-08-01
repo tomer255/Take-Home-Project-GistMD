@@ -1,13 +1,29 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import styled from "styled-components";
 import PatientInfo from './PatientInfo';
-import data from "../data.json"
+import axios from "axios"
+import API from "../ApiEndPonts"
+import { toast } from 'react-toastify';
 
 function PatientList() {
-    const {Pecinats} = data;
+  const [pecinats, setPecinats] = useState([]);
+
+  const getPatientData = ()=>{
+    axios.get(API.patient.getPatients).then((results)=>{
+      setPecinats(results.data);
+    }).catch((error)=>{toast.error(error.response.data)})
+  }
+
+  const removeById = (id)=>{
+    setPecinats(pecinats.filter(pecinat=>pecinat.id !== id))
+  }
+
+  useEffect(() => {
+    getPatientData()
+  },[]);
   return (
     <Container>
-        {Pecinats.map((Pecinat)=>(<PatientInfo info={Pecinat}/>))}
+        {pecinats.map(Pecinat=><PatientInfo info={Pecinat} removeById={removeById}/>)}
     </Container>
   );
 }

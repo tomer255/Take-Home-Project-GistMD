@@ -1,12 +1,33 @@
 import React from 'react'
 import styled from "styled-components";
-import {MdOutlineDeleteOutline} from 'react-icons/md';
+import {MdOutlineDeleteOutline,MdEdit} from 'react-icons/md';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import API from '../ApiEndPonts';
+import { useNavigate } from "react-router-dom";
 
 const DontDisplay = ["id"]
 
-function PatientInfo({info}) {
+function PatientInfo({info,removeById}) {
     const entries = Object.entries(info);
     const displayEntries = entries.filter(([key, value])=>!DontDisplay.includes(key));
+    const navigate = useNavigate();
+
+    const deletePatient = (e)=>{
+        const {id} = info;
+        console.log(id);
+        axios.post(API.patient.deletePatient,{id})
+        .then((results)=>{
+            toast.success(results.data);
+            removeById(id)
+        })
+        .catch((error)=>{toast.error(error.response.data)})
+    }
+
+    const editPatient = (e)=>{
+        navigate("/editPatient",{state:{info}})
+    }
+
   return (
     <PatientFrame>
         {displayEntries.map(([key, value])=>(
@@ -16,9 +37,12 @@ function PatientInfo({info}) {
             </Field>
         ))}
         <Buttons>
-            <DeleteButton onClick={()=>{console.log("Delete")}}>
+            <Button onClick={deletePatient}>
                 <MdOutlineDeleteOutline size={22}/>
-            </DeleteButton>          
+            </Button>
+            <Button onClick={editPatient}>
+                <MdEdit size={22}/>
+            </Button>
         </Buttons>
     </PatientFrame>
   );
@@ -39,12 +63,12 @@ justify-content: center;
 align-items: center;
 `
 
-const DeleteButton = styled.button`
+const Button = styled.button`
 cursor:pointer;
 height: 40%;
 border-radius: 12px;
-border: 2px solid ${props => props.theme.primary};
-color:${props => props.theme.primary};
+border: 2px solid ${props => props.theme.secondary};
+color:${props => props.theme.secondary};
 `
 
 

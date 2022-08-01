@@ -1,30 +1,58 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import styled from "styled-components";
-import data from "../data.json"
+import axios from "axios"
+import API from "../ApiEndPonts"
+import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
+import { useLocation } from 'react-router';
 
-const getElement = (field,key)=>{
-  switch(field.type) {
-    case "TextBox": return <TextBox name={key}/>
-    case "Number": return <Number name={key}/>
-    case "Select": return <Select name={key}>{field.options.map((option)=>(<option value={option}>{option}</option>))}</Select>
-    default: return 
+const getElement = (field,key,value)=>{
+   value = value ? value : "";
+    switch(field.type) {
+      case "TextBox": return <TextBox name={key} defaultValue={value}/>
+      case "Number": return <Number name={key} defaultValue={value}/>
+      case "Select": return <Select name={key} defaultValue={value}>{field.options.map((option)=>(<option value={option}>{option}</option>))}</Select>
+      default: return 
   }
 }
 
 function AddPatient() {
-  let {Fields} = data;
-  const fields = Object.entries(Fields).map(([key, field])=>({...field,element:getElement(field,key),key}))
+  const [fields,setFields] = useState([])
+  const navigate = useNavigate();
+  const {state} = useLocation();
+  const info = state ? state.info  : {}
+  const title = state ? "Edit Patient"  : "Add Patient"
+  const ApiEndPont = state ? API.patient.editPatient : API.patient.addPatient
+
+  const getFields = () =>{
+    axios.get(API.fields.getFields)
+    .then((results)=>{
+      setFields(Object.entries(results.data).map(([key, field])=>({...field,element:getElement(field,key,info[key]),key})))
+    }).catch((error)=>{toast.error(error.response.data)})
+  }
+
+
+  useEffect(()=>{
+    getFields()
+  },[])
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const res = Object.keys(Fields).reduce((prev, val) => ({...prev,[val] : event.target[val].value}), {});
-    console.log(res);
+    const data = fields.reduce((prev, val) => ({...prev,[val.key] : event.target[val.key].value}), {})
+    sendPatientData(data);
+    navigate("/");
+  }
+
+  const sendPatientData = (data)=>{
+    axios.post(ApiEndPont,{data,id:info.id})
+    .then((results)=>{toast.success(results.data)})
+    .catch((error)=>{toast.error(error.response.data)})
   }
 
   return (
     <Container>
       <From onSubmit={handleSubmit}>
-        <Header>Add Patient</Header>
+        <Header>{title}</Header>
         <div>
         {fields.map((field)=>(
           <Field key={field.key} >
@@ -53,7 +81,6 @@ text-transform: se;
 `
 
 const Container = styled.div`
-width:80%;
 align-items: center;
 display: flex;
 flex-direction: column;

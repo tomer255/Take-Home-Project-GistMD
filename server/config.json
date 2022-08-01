@@ -1,0 +1,36 @@
+{
+    "Fields":{
+        "name":{
+            "text": "Name",
+            "type": "TextBox"
+        },
+        "gender":{
+            "text":"Gender",
+            "type": "Select",
+            "options": ["Male","Female"]
+        },
+        "age":{
+            "text": "Age",
+            "type": "Number"
+        },
+        "language":{
+            "text": "Language",
+            "type": "Select",
+            "options": ["Hebrew","English"]
+        },
+        "surgery":{
+            "text": "Surgery",
+            "type": "Select",
+            "options": [
+                "Appendicitis Removal",
+                "Urological Surgery",
+                "Gynecological Surgery",
+                "Thoracic Surgery",
+                "Breast Surgery",
+                "Colorectal Surgery",
+                "Gallbladder removal",
+                "Hysterectomies",
+                "Myomectomies"]
+        }
+    }
+}
